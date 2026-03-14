@@ -12,23 +12,12 @@ type Game struct {
 	World    *domain.World
 	Input    engine.InputReader
 	Renderer engine.Renderer
-	MoveChar *application.MoveCharacter
+	Loop     *application.GameLoop
 }
 
 func (g *Game) Update() error {
-	for _, cmd := range g.Input.ReadCommands() {
-		switch cmd {
-		case engine.CmdQuit:
-			return eb.Termination
-		case engine.CmdMoveUp:
-			g.MoveChar.Execute("player", domain.DirUp)
-		case engine.CmdMoveDown:
-			g.MoveChar.Execute("player", domain.DirDown)
-		case engine.CmdMoveLeft:
-			g.MoveChar.Execute("player", domain.DirLeft)
-		case engine.CmdMoveRight:
-			g.MoveChar.Execute("player", domain.DirRight)
-		}
+	if g.Loop.ProcessCommands(g.Input.ReadCommands()) {
+		return eb.Termination
 	}
 	return nil
 }
@@ -39,4 +28,16 @@ func (g *Game) Draw(screen *eb.Image) {
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return domain.WorldWidth, domain.WorldHeight
+}
+
+func (g *Game) Run() error {
+	eb.SetWindowSize(domain.WorldWidth, domain.WorldHeight)
+	eb.SetWindowTitle("Dream Walker")
+	eb.SetWindowResizingMode(eb.WindowResizingModeEnabled)
+
+	err := eb.RunGame(g)
+	if err == eb.Termination {
+		return nil
+	}
+	return err
 }

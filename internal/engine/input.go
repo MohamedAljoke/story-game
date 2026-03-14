@@ -1,6 +1,5 @@
 package engine
 
-// Command represents a player input command.
 type Command int
 
 const (

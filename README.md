@@ -21,12 +21,15 @@ Built as a personal project to explore clean architecture patterns in a game con
 The codebase is deliberately structured so that **game logic has zero knowledge of the rendering engine**. Ebiten is a swappable adapter — replacing it with another engine (e.g. Raylib) requires no changes to domain or application code.
 
 ```
-cmd/game/              Entry point — wires all layers together
+cmd/game/              Entry point (Ebiten)
+cmd/game-raylib/       Entry point (terminal stub)
 internal/
   domain/              Pure game rules. No external imports, stdlib only.
-  engine/              Interfaces (ports) for input and rendering
-  application/         Use cases — orchestrate domain operations
-  ebiten/              Ebiten adapter (implements engine interfaces)
+  engine/              Interfaces (ports): InputReader, Renderer, Engine
+  application/         Use cases — MoveCharacter, GameLoop
+  adapter/
+    ebiten/            Ebiten adapter (implements engine interfaces)
+    raylib/            Raylib terminal stub adapter
 assets/
   sprites/
   maps/
@@ -36,11 +39,11 @@ assets/
 
 ```
 domain  ←  engine
-domain  ←  application
-domain  ←  ebiten  →  ebiten/v2
+domain  ←  application  ←  engine
+domain  ←  adapter/*  →  engine, application, (engine-specific lib)
 ```
 
-Domain sits at the center and depends on nothing. All other layers depend inward on it.
+Domain sits at the center and depends on nothing. Command routing lives in `GameLoop.ProcessCommands()` — shared across all adapters.
 
 ---
 
@@ -48,7 +51,7 @@ Domain sits at the center and depends on nothing. All other layers depend inward
 
 **Domain is engine-agnostic.** `internal/domain` contains only pure Go structs and logic. It has no knowledge of Ebiten, rendering, or input systems. This makes it trivially testable and portable.
 
-**Ports & Adapters for I/O.** `engine.InputReader` and `engine.Renderer` are interfaces defined in the engine layer. The Ebiten implementation lives in `internal/ebiten` and can be swapped without touching anything else.
+**Ports & Adapters for I/O.** `engine.InputReader`, `engine.Renderer`, and `engine.Engine` are interfaces defined in the engine layer. Adapters live under `internal/adapter/` and can be swapped without touching domain or application code.
 
 **World as aggregate root.** All game state mutations (character movement, world transitions) go through the `World` struct in the domain layer. No other layer writes state directly.
 
@@ -59,13 +62,13 @@ Domain sits at the center and depends on nothing. All other layers depend inward
 ## Game Loop
 
 ```
-EbitenInput.ReadCommands()     keys held → Command values
+InputReader.ReadCommands()       keys/stdin → Command values
       ↓
-Game.Update()                  routes commands to use cases
+GameLoop.ProcessCommands()       routes commands to use cases (shared)
       ↓
-MoveCharacter.Execute()        calls World.MoveCharacter() → clamps to bounds
+MoveCharacter.Execute()          calls World.MoveCharacter() → clamps to bounds
       ↓
-Game.Draw()                    delegates to EbitenRenderer.Draw()
+Renderer.Draw()                  renders world state (Ebiten or stdout)
 ```
 
 ---
@@ -75,7 +78,8 @@ Game.Draw()                    delegates to EbitenRenderer.Draw()
 ```sh
 git clone <repo>
 cd story-game
-go run ./cmd/game/
+make run        # Ebiten window
+make run-term   # terminal stub (w/a/s/d + q)
 ```
 
 Controls: `WASD` or arrow keys to move, `ESC` to quit.

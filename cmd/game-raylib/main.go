@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	ebitenpkg "story-game/internal/adapter/ebiten"
+	"story-game/internal/adapter/raylib"
 	"story-game/internal/application"
 	"story-game/internal/domain"
 )
@@ -15,10 +15,12 @@ func main() {
 		MoveChar: &application.MoveCharacter{World: world},
 	}
 
-	game := &ebitenpkg.Game{
+	input := raylib.NewRaylibInput()
+
+	game := &raylib.Game{
 		World:    world,
-		Input:    &ebitenpkg.EbitenInput{},
-		Renderer: &ebitenpkg.EbitenRenderer{},
+		Input:    input,
+		Renderer: &raylib.RaylibRenderer{},
 		Loop:     loop,
 	}
 

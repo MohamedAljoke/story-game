@@ -19,41 +19,59 @@ go run ./cmd/game/
 - WASD or arrow keys to move
 - ESC to quit
 
+Terminal stub (no graphics):
+
+```sh
+go run ./cmd/game-raylib/
+```
+
+- w/a/s/d to move, q to quit
+
 ## Project Structure
 
 ```
-cmd/game/main.go              Entry point, wires all layers together
+cmd/game/main.go                   Entry point (Ebiten)
+cmd/game-raylib/main.go            Entry point (Raylib terminal stub)
 internal/
-  domain/                      Pure game rules, zero external imports
-    position.go                Position{X,Y float64}, Clamp()
-    direction.go               Direction enum (Up/Down/Left/Right), Delta()
-    character.go               Character{ID, Name}
-    world.go                   Aggregate root, MoveCharacter(), constants
-  engine/                      Engine-agnostic interfaces
-    input.go                   Command enum, InputReader interface
-    renderer.go                Renderer interface (screen is `any`)
-  application/                 Use cases coordinating domain operations
-    move_character.go          MoveCharacter use case
-  ebiten/                      Ebiten adapter implementations
-    input.go                   EbitenInput: keys → commands
-    renderer.go                EbitenRenderer: draws world state
-    game.go                    Game struct implementing ebiten.Game
+  domain/                           Pure game rules, zero external imports
+    position.go                     Position{X,Y float64}, Clamp()
+    direction.go                    Direction enum (Up/Down/Left/Right), Delta()
+    character.go                    Character{ID, Name}
+    world.go                        Aggregate root, MoveCharacter(), constants
+  engine/                           Engine-agnostic interfaces
+    input.go                        Command enum, InputReader interface
+    renderer.go                     Renderer interface (screen is `any`)
+    engine.go                       Engine interface (Run() error)
+  application/                      Use cases coordinating domain operations
+    move_character.go               MoveCharacter use case
+    game_loop.go                    GameLoop: routes commands to use cases
+  adapter/
+    ebiten/                         Ebiten adapter
+      input.go                      EbitenInput: keys → commands
+      renderer.go                   EbitenRenderer: draws world state
+      game.go                       Game struct, Run() wraps ebiten.RunGame
+    raylib/                         Raylib terminal stub adapter
+      input.go                      RaylibInput: stdin → commands
+      renderer.go                   RaylibRenderer: prints positions to stdout
+      game.go                       Game struct, Run() imperative loop
 assets/
-  sprites/                     Sprite assets (empty, placeholder)
-  maps/                        Map assets (empty, placeholder)
+  sprites/                          Sprite assets (empty, placeholder)
+  maps/                             Map assets (empty, placeholder)
 ```
 
 ## Architecture & Dependency Rules
 
 ```
-domain/       → nothing (stdlib only, NO engine imports)
-engine/       → domain
-application/  → domain
-ebiten/       → domain, engine, application, ebiten/v2
-cmd/game/     → domain, internal/ebiten, ebiten/v2
+domain/         → nothing (stdlib only, NO engine imports)
+engine/         → domain
+application/    → domain, engine
+adapter/ebiten/ → domain, engine, application, ebiten/v2
+adapter/raylib/ → domain, engine, application, stdlib
+cmd/game/       → adapter/ebiten, application, domain
+cmd/game-raylib/→ adapter/raylib, application, domain
 ```
 
-Domain must never import engine packages. Engine adapters depend inward on domain.
+Domain must never import engine packages. Engine adapters depend inward on domain. Application layer may import engine (for Command type) but not adapters.
 
 ## Domain Constants
 
@@ -68,27 +86,28 @@ Defined in `internal/domain/world.go`:
 
 ## How the Game Loop Works
 
-1. `EbitenInput.ReadCommands()` translates held keys into `Command` values
-2. `Game.Update()` iterates commands, routes move commands through `MoveCharacter.Execute()`
+1. Adapter's `InputReader.ReadCommands()` translates input into `Command` values
+2. `GameLoop.ProcessCommands()` routes commands to use cases (shared across all adapters)
 3. `MoveCharacter` calls `World.MoveCharacter()` which applies direction delta * speed, then clamps to bounds
-4. `Game.Draw()` delegates to `EbitenRenderer.Draw()` which reads world state and renders background, grid, characters, HUD
+4. Adapter's `Renderer.Draw()` reads world state and renders output
 
 ## Adding a New Feature
 
 **New domain concept** — add to `internal/domain/`, no engine imports allowed. Update `World` if it's aggregate state.
 
-**New input command** — add constant to `internal/engine/input.go`, handle key mapping in `internal/ebiten/input.go`, route in `internal/ebiten/game.go` Update().
+**New input command** — add constant to `internal/engine/input.go`, handle in `internal/application/game_loop.go` ProcessCommands(), add key mapping in each adapter's input.go.
 
-**New use case** — add file in `internal/application/`, inject `World`, wire in `cmd/game/main.go` and `internal/ebiten/game.go`.
+**New use case** — add file in `internal/application/`, inject into `GameLoop`, route in `ProcessCommands()`.
 
-**New visual element** — add to `internal/ebiten/renderer.go` Draw method.
+**New visual element** — add to each adapter's renderer.go Draw method.
 
-**Swap engine** — implement `engine.InputReader` and `engine.Renderer` interfaces, create new adapter package (e.g. `internal/raylib/`), update `cmd/game/main.go` wiring.
+**Swap engine** — create new adapter package under `internal/adapter/`, implement `engine.InputReader`, `engine.Renderer`, and `engine.Engine` interfaces. Create a new `cmd/` entry point that wires the adapter with `GameLoop`. See `internal/adapter/raylib/` for a minimal example.
 
 ## Conventions
 
-- Ebiten v2 imports are aliased as `eb` in adapter files to avoid collision with the `internal/ebiten` package name
-- `cmd/game/main.go` uses import alias `ebitenpkg` for `internal/ebiten`
+- Ebiten v2 imports are aliased as `eb` in adapter files
+- `cmd/game/main.go` uses import alias `ebitenpkg` for `internal/adapter/ebiten`
 - World is the aggregate root — all game state mutations go through it
 - Renderer receives `screen any` and type-asserts to the engine's image type
+- Command routing lives in `GameLoop.ProcessCommands()`, not in adapter code
 - `go vet ./...` must pass clean
