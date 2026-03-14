@@ -1,18 +1,23 @@
-.PHONY: run run-term build build-term build-all vet clean
+.PHONY: run run-raylib build build-raylib build-all vet clean
+
+UNAME := $(shell uname -s)
+ifeq ($(UNAME),Linux)
+	RAYLIB_TAGS := -tags x11
+endif
 
 run:
 	go run ./cmd/game/
 
-run-term:
-	go run ./cmd/game-raylib/
+run-raylib:
+	go run $(RAYLIB_TAGS) ./cmd/game-raylib/
 
 build:
 	go build -o bin/dream-walker ./cmd/game/
 
-build-term:
-	go build -o bin/dream-walker-term ./cmd/game-raylib/
+build-raylib:
+	go build $(RAYLIB_TAGS) -o bin/dream-walker-raylib ./cmd/game-raylib/
 
-build-all: build build-term
+build-all: build build-raylib
 
 vet:
 	go vet ./...

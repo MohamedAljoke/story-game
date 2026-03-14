@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"story-game/internal/adapter/raylib"
+	raylibpkg "story-game/internal/adapter/raylib"
 	"story-game/internal/application"
 	"story-game/internal/domain"
 )
@@ -15,12 +15,10 @@ func main() {
 		MoveChar: &application.MoveCharacter{World: world},
 	}
 
-	input := raylib.NewRaylibInput()
-
-	game := &raylib.Game{
+	game := &raylibpkg.Game{
 		World:    world,
-		Input:    input,
-		Renderer: &raylib.RaylibRenderer{},
+		Input:    &raylibpkg.RaylibInput{},
+		Renderer: &raylibpkg.RaylibRenderer{},
 		Loop:     loop,
 	}
 
