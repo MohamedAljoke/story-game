@@ -3,16 +3,15 @@ package ebiten
 import (
 	"story-game/internal/application"
 	"story-game/internal/domain"
-	"story-game/internal/engine"
 
 	eb "github.com/hajimehoshi/ebiten/v2"
 )
 
 type Game struct {
 	World    *domain.World
-	Input    engine.InputReader
-	Renderer engine.Renderer
 	Loop     *application.GameLoop
+	Input    *EbitenInput
+	Renderer *EbitenRenderer
 }
 
 func NewEngine(world *domain.World, loop *application.GameLoop) *Game {

@@ -3,15 +3,14 @@ package raylib
 import (
 	"story-game/internal/application"
 	"story-game/internal/domain"
-	"story-game/internal/engine"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type Game struct {
 	World    *domain.World
-	Input    engine.InputReader
-	Renderer engine.Renderer
+	Input    *RaylibInput
+	Renderer *RaylibRenderer
 	Loop     *application.GameLoop
 }
 
