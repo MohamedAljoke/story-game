@@ -15,12 +15,7 @@ func main() {
 		MoveChar: &application.MoveCharacter{World: world},
 	}
 
-	game := &raylibpkg.Game{
-		World:    world,
-		Input:    &raylibpkg.RaylibInput{},
-		Renderer: &raylibpkg.RaylibRenderer{},
-		Loop:     loop,
-	}
+	game := raylibpkg.NewEngine(world, loop)
 
 	if err := game.Run(); err != nil {
 		log.Fatal(err)

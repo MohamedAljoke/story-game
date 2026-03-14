@@ -15,6 +15,15 @@ type Game struct {
 	Loop     *application.GameLoop
 }
 
+func NewEngine(world *domain.World, loop *application.GameLoop) *Game {
+	return &Game{
+		World:    world,
+		Input:    &EbitenInput{},
+		Renderer: &EbitenRenderer{},
+		Loop:     loop,
+	}
+}
+
 func (g *Game) Update() error {
 	if g.Loop.ProcessCommands(g.Input.ReadCommands()) {
 		return eb.Termination

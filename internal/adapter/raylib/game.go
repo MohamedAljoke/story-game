@@ -15,6 +15,15 @@ type Game struct {
 	Loop     *application.GameLoop
 }
 
+func NewEngine(world *domain.World, loop *application.GameLoop) *Game {
+	return &Game{
+		World:    world,
+		Input:    &RaylibInput{},
+		Renderer: &RaylibRenderer{},
+		Loop:     loop,
+	}
+}
+
 func (g *Game) Run() error {
 	rl.InitWindow(domain.WorldWidth, domain.WorldHeight, "Dream Walker")
 	rl.SetTargetFPS(60)

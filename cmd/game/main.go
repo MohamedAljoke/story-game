@@ -15,12 +15,7 @@ func main() {
 		MoveChar: &application.MoveCharacter{World: world},
 	}
 
-	game := &ebitenpkg.Game{
-		World:    world,
-		Input:    &ebitenpkg.EbitenInput{},
-		Renderer: &ebitenpkg.EbitenRenderer{},
-		Loop:     loop,
-	}
+	game := ebitenpkg.NewEngine(world, loop)
 
 	if err := game.Run(); err != nil {
 		log.Fatal(err)
