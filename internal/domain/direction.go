@@ -3,7 +3,8 @@ package domain
 type Direction int
 
 const (
-	DirUp Direction = iota
+	DirNone Direction = iota
+	DirUp
 	DirDown
 	DirLeft
 	DirRight

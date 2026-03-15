@@ -13,6 +13,7 @@ func main() {
 
 	loop := &application.GameLoop{
 		MoveChar: &application.MoveCharacter{World: world},
+		World:    world,
 	}
 
 	game := ebitenpkg.NewEngine(world, loop)

@@ -7,6 +7,7 @@ import (
 
 type GameLoop struct {
 	MoveChar *MoveCharacter
+	World    *domain.World
 }
 
 func (gl *GameLoop) ProcessCommands(cmds []engine.Command) bool {
@@ -24,5 +25,9 @@ func (gl *GameLoop) ProcessCommands(cmds []engine.Command) bool {
 			gl.MoveChar.Execute("player", domain.DirRight)
 		}
 	}
+
+	// update followers every frame
+	gl.World.UpdateFollowers()
+
 	return false
 }

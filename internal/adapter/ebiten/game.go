@@ -15,10 +15,12 @@ type Game struct {
 }
 
 func NewEngine(world *domain.World, loop *application.GameLoop) *Game {
+	renderer := NewRenderer()
+
 	return &Game{
 		World:    world,
 		Input:    &EbitenInput{},
-		Renderer: &EbitenRenderer{},
+		Renderer: renderer,
 		Loop:     loop,
 	}
 }

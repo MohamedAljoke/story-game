@@ -1,24 +1,34 @@
 package ebiten
 
 import (
-	"image/color"
-
+	"story-game/internal/adapter/ebiten/helpers"
+	"story-game/internal/adapter/ebiten/sprites"
 	"story-game/internal/domain"
 
-	"github.com/hajimehoshi/ebiten/v2"
+	eb "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-type EbitenRenderer struct{}
+type EbitenRenderer struct {
+	player *sprites.PlayerSprite
+	cat    *sprites.CatSprite
+}
 
-func (r *EbitenRenderer) Draw(screen *ebiten.Image, world *domain.World) {
+func NewRenderer() *EbitenRenderer {
+	return &EbitenRenderer{
+		player: sprites.NewPlayerSprite(),
+		cat:    sprites.NewCatSprite(),
+	}
+}
+
+func (r *EbitenRenderer) Draw(screen *eb.Image, world *domain.World) {
 
 	// Background
-	screen.Fill(hexColor(0x1a1a2e))
+	screen.Fill(helpers.HexColor(0x1a1a2e))
 
 	// Grid
-	gridColor := hexColor(0x2a2a3e)
+	gridColor := helpers.HexColor(0x2a2a3e)
 	for x := 0; x < domain.WorldWidth; x += domain.TileSize {
 		vector.StrokeLine(screen, float32(x), 0, float32(x), domain.WorldHeight, 1, gridColor, false)
 	}
@@ -27,16 +37,22 @@ func (r *EbitenRenderer) Draw(screen *ebiten.Image, world *domain.World) {
 	}
 
 	// Characters
-	charColor := hexColor(0x00d4ff)
 	for id, pos := range world.Positions {
-		_ = world.Characters[id]
-		vector.DrawFilledRect(screen, float32(pos.X), float32(pos.Y), domain.TileSize, domain.TileSize, charColor, false)
+		char := world.Characters[id]
+
+		switch char.Type {
+
+		case domain.CharacterPlayer:
+			r.player.Draw(screen, pos, char.Facing)
+
+		case domain.CharacterPet:
+			player := world.Characters["player"]
+
+			r.cat.Draw(screen, pos, player.Facing)
+
+		}
 	}
 
 	// HUD
 	ebitenutil.DebugPrint(screen, "WASD / Arrow keys to move | ESC to quit")
-}
-
-func hexColor(v uint32) color.RGBA {
-	return color.RGBA{R: uint8(v >> 16), G: uint8(v >> 8), B: uint8(v), A: 0xff}
 }
