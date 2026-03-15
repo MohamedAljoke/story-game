@@ -9,7 +9,3 @@ const (
 	CmdMoveRight
 	CmdQuit
 )
-
-type InputReader interface {
-	ReadCommands() []Command
-}
