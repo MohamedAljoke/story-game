@@ -36,7 +36,7 @@ func (c *CatSprite) Draw(screen *eb.Image, pos *domain.Position, dir domain.Dire
 
 	c.animCounter++
 
-	if c.animCounter >= 500 {
+	if c.animCounter >= 50 {
 		c.animFrame = (c.animFrame + 1) % len(c.frames[0])
 		c.animCounter = 0
 	}

@@ -60,29 +60,44 @@ func (w *World) UpdateFollowers() {
 		return
 	}
 
+	cat := w.Characters["cat"]
+
 	dx := playerPos.X - catPos.X
 	dy := playerPos.Y - catPos.Y
 
-	// distance check so cat stays one tile behind
 	if abs(dx) < TileSize && abs(dy) < TileSize {
+		cat.Moving = false
 		return
 	}
 
-	if dx > 0 {
-		catPos.X += MoveSpeed
-	}
-	if dx < 0 {
-		catPos.X -= MoveSpeed
+	cat.Moving = true
+
+	// try to align with player plane first
+	if abs(dx) > 2 {
+
+		if dx > 0 {
+			catPos.X += MoveSpeed
+			cat.Facing = DirRight
+		} else {
+			catPos.X -= MoveSpeed
+			cat.Facing = DirLeft
+		}
+
+		return
 	}
 
-	if dy > 0 {
-		catPos.Y += MoveSpeed
-	}
-	if dy < 0 {
-		catPos.Y -= MoveSpeed
+	// once aligned horizontally, move vertically
+	if abs(dy) > 2 {
+
+		if dy > 0 {
+			catPos.Y += MoveSpeed
+			cat.Facing = DirDown
+		} else {
+			catPos.Y -= MoveSpeed
+			cat.Facing = DirUp
+		}
 	}
 }
-
 func abs(v float64) float64 {
 	if v < 0 {
 		return -v
