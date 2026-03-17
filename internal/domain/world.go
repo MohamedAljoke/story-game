@@ -11,6 +11,7 @@ type World struct {
 	characters map[CharacterID]*Character
 	positions  map[CharacterID]*Position
 	TileMap    *TileMap
+	Camera     *Camera
 }
 
 func NewWorld(tm *TileMap) *World {
@@ -18,6 +19,7 @@ func NewWorld(tm *TileMap) *World {
 		characters: make(map[CharacterID]*Character),
 		positions:  make(map[CharacterID]*Position),
 		TileMap:    tm,
+		Camera:     NewCamera(float64(WorldWidth), float64(WorldHeight)),
 	}
 
 	spawnX, spawnY := w.findSpawn()
@@ -27,6 +29,9 @@ func NewWorld(tm *TileMap) *World {
 
 	w.characters[CatID] = &Character{ID: CatID, Name: "Cat", Type: CharacterPet, Leader: PlayerID}
 	w.positions[CatID] = &Position{X: spawnX - TileSize, Y: spawnY}
+
+	w.Camera.X = spawnX + float64(TileSize)/2 - w.Camera.Width/2
+	w.Camera.Y = spawnY + float64(TileSize)/2 - w.Camera.Height/2
 
 	return w
 }
@@ -111,6 +116,17 @@ func (w *World) UpdateFollowers() {
 				char.Facing = DirUp
 			}
 		}
+	}
+}
+
+func (w *World) UpdateCamera() {
+	playerPos := w.positions[PlayerID]
+	if playerPos == nil {
+		return
+	}
+	w.Camera.Follow(playerPos)
+	if w.TileMap != nil {
+		w.Camera.Clamp(float64(w.TileMap.PixelWidth()), float64(w.TileMap.PixelHeight()))
 	}
 }
 

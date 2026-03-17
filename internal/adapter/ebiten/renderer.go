@@ -26,24 +26,23 @@ func NewRenderer(tileset *Tileset) *EbitenRenderer {
 func (r *EbitenRenderer) Draw(screen *eb.Image, world *domain.World) {
 	screen.Fill(helpers.HexColor(0x1a1a2e))
 
+	cam := world.Camera
+
 	if r.tileset != nil && world.TileMap != nil {
-		r.tileset.DrawMap(screen, world.TileMap)
+		r.tileset.DrawMap(screen, world.TileMap, cam)
 	}
 
-	// Characters
 	world.EachCharacter(func(id domain.CharacterID, char *domain.Character, pos *domain.Position) {
+		screenPos := &domain.Position{X: pos.X - cam.X, Y: pos.Y - cam.Y}
+
 		switch char.Type {
-
 		case domain.CharacterPlayer:
-			r.player.Draw(screen, pos, char.Facing)
-
+			r.player.Draw(screen, screenPos, char.Facing)
 		case domain.CharacterPet:
 			leader := world.Character(char.Leader)
-			r.cat.Draw(screen, pos, leader.Facing)
-
+			r.cat.Draw(screen, screenPos, leader.Facing)
 		}
 	})
 
-	// HUD
 	ebitenutil.DebugPrint(screen, "WASD / Arrow keys to move | ESC to quit")
 }

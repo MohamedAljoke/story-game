@@ -26,8 +26,8 @@ func (gl *GameLoop) ProcessCommands(cmds []engine.Command) bool {
 		}
 	}
 
-	// update followers every frame
 	gl.World.UpdateFollowers()
+	gl.World.UpdateCamera()
 
 	return false
 }
