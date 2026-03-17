@@ -10,12 +10,12 @@ import (
 )
 
 func main() {
-	tm, err := loader.LoadTiledMap("assets/maps/spawn.json")
+	tm, err := loader.LoadTiledMap("assets/maps/spawn.json", 2)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tileset, err := ebitenpkg.NewTileset("assets/maps/images/TilesetFloor.png", tm.TileSize, tm.TileSize)
+	tileset, err := ebitenpkg.NewTileset("assets/maps/images/TilesetFloor.png", 16, 16, 2.0)
 	if err != nil {
 		log.Fatal(err)
 	}

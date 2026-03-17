@@ -17,6 +17,12 @@ func (tm *TileMap) TileAt(layer, x, y int) int {
 	return tm.Layers[layer][y*tm.Width+x]
 }
 
+func (tm *TileMap) IsWalkable(px, py float64) bool {
+	tx := int(px) / tm.TileSize
+	ty := int(py) / tm.TileSize
+	return tm.TileAt(0, tx, ty) != 0
+}
+
 func (tm *TileMap) PixelWidth() int {
 	return tm.Width * tm.TileSize
 }

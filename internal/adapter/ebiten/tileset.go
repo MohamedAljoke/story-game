@@ -13,9 +13,10 @@ type Tileset struct {
 	columns int
 	tileW   int
 	tileH   int
+	scale   float64
 }
 
-func NewTileset(path string, tileW, tileH int) (*Tileset, error) {
+func NewTileset(path string, tileW, tileH int, scale float64) (*Tileset, error) {
 	img, err := helpers.LoadSprite(path)
 	if err != nil {
 		return nil, err
@@ -26,6 +27,7 @@ func NewTileset(path string, tileW, tileH int) (*Tileset, error) {
 		columns: bounds.Dx() / tileW,
 		tileW:   tileW,
 		tileH:   tileH,
+		scale:   scale,
 	}, nil
 }
 
@@ -43,6 +45,7 @@ func (ts *Tileset) DrawMap(screen *eb.Image, tm *domain.TileMap) {
 				srcY := (idx / ts.columns) * ts.tileH
 
 				op := &eb.DrawImageOptions{}
+				op.GeoM.Scale(ts.scale, ts.scale)
 				op.GeoM.Translate(float64(x*tm.TileSize), float64(y*tm.TileSize))
 
 				sub := ts.image.SubImage(

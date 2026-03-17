@@ -18,7 +18,7 @@ type tiledMap struct {
 	Layers     []tiledLayer `json:"layers"`
 }
 
-func LoadTiledMap(path string) (*domain.TileMap, error) {
+func LoadTiledMap(path string, scale int) (*domain.TileMap, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func LoadTiledMap(path string) (*domain.TileMap, error) {
 	return &domain.TileMap{
 		Width:    tm.Width,
 		Height:   tm.Height,
-		TileSize: tm.TileWidth,
+		TileSize: tm.TileWidth * scale,
 		Layers:   layers,
 	}, nil
 }

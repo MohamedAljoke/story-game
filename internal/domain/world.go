@@ -20,17 +20,13 @@ func NewWorld(tm *TileMap) *World {
 		TileMap:    tm,
 	}
 
+	spawnX, spawnY := w.findSpawn()
+
 	w.characters[PlayerID] = &Character{ID: PlayerID, Name: "Player", Type: CharacterPlayer, Facing: DirDown}
-	w.positions[PlayerID] = &Position{
-		X: float64(WorldWidth/2 - TileSize/2),
-		Y: float64(WorldHeight/2 - TileSize/2),
-	}
+	w.positions[PlayerID] = &Position{X: spawnX, Y: spawnY}
 
 	w.characters[CatID] = &Character{ID: CatID, Name: "Cat", Type: CharacterPet, Leader: PlayerID}
-	w.positions[CatID] = &Position{
-		X: float64(WorldWidth/2 - TileSize/2 - TileSize),
-		Y: float64(WorldHeight/2 - TileSize/2),
-	}
+	w.positions[CatID] = &Position{X: spawnX - TileSize, Y: spawnY}
 
 	return w
 }
@@ -48,8 +44,20 @@ func (w *World) MoveCharacter(id CharacterID, dir Direction) {
 	}
 
 	dx, dy := dir.Delta()
-	pos.X += dx * MoveSpeed
-	pos.Y += dy * MoveSpeed
+	newX := pos.X + dx*MoveSpeed
+	newY := pos.Y + dy*MoveSpeed
+
+	if w.TileMap != nil {
+		half := float64(TileSize) / 2
+		cx := newX + half
+		cy := newY + half
+		if !w.TileMap.IsWalkable(cx, cy) {
+			return
+		}
+	}
+
+	pos.X = newX
+	pos.Y = newY
 
 	maxX := float64(WorldWidth - TileSize)
 	maxY := float64(WorldHeight - TileSize)
@@ -113,6 +121,28 @@ func (w *World) EachCharacter(fn func(CharacterID, *Character, *Position)) {
 	for id, char := range w.characters {
 		fn(id, char, w.positions[id])
 	}
+}
+
+func (w *World) findSpawn() (float64, float64) {
+	if w.TileMap != nil {
+		sumX, sumY, count := 0, 0, 0
+		for y := 0; y < w.TileMap.Height; y++ {
+			for x := 0; x < w.TileMap.Width; x++ {
+				tile := w.TileMap.TileAt(0, x, y)
+				if tile != 0 {
+					sumX += x
+					sumY += y
+					count++
+				}
+			}
+		}
+		if count > 0 {
+			cx := float64(sumX/count) * float64(w.TileMap.TileSize)
+			cy := float64(sumY/count) * float64(w.TileMap.TileSize)
+			return cx, cy
+		}
+	}
+	return float64(WorldWidth/2 - TileSize/2), float64(WorldHeight/2 - TileSize/2)
 }
 
 func abs(v float64) float64 {
