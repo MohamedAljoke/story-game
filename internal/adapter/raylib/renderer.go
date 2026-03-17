@@ -20,10 +20,9 @@ func (r *RaylibRenderer) Draw(screen any, world *domain.World) {
 	}
 
 	charColor := rl.Color{R: 0x00, G: 0xd4, B: 0xff, A: 0xff}
-	for id, pos := range world.Positions {
-		_ = world.Characters[id]
+	world.EachCharacter(func(_ domain.CharacterID, _ *domain.Character, pos *domain.Position) {
 		rl.DrawRectangle(int32(pos.X), int32(pos.Y), domain.TileSize, domain.TileSize, charColor)
-	}
+	})
 
 	rl.DrawText("WASD / Arrow keys to move | ESC to quit", 10, 10, 10, rl.White)
 }

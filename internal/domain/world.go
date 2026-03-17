@@ -8,24 +8,24 @@ const (
 )
 
 type World struct {
-	Characters map[CharacterID]*Character
-	Positions  map[CharacterID]*Position
+	characters map[CharacterID]*Character
+	positions  map[CharacterID]*Position
 }
 
 func NewWorld() *World {
 	w := &World{
-		Characters: make(map[CharacterID]*Character),
-		Positions:  make(map[CharacterID]*Position),
+		characters: make(map[CharacterID]*Character),
+		positions:  make(map[CharacterID]*Position),
 	}
 
-	w.Characters[PlayerID] = &Character{ID: PlayerID, Name: "Player", Type: CharacterPlayer, Facing: DirDown}
-	w.Positions[PlayerID] = &Position{
+	w.characters[PlayerID] = &Character{ID: PlayerID, Name: "Player", Type: CharacterPlayer, Facing: DirDown}
+	w.positions[PlayerID] = &Position{
 		X: float64(WorldWidth/2 - TileSize/2),
 		Y: float64(WorldHeight/2 - TileSize/2),
 	}
 
-	w.Characters[CatID] = &Character{ID: CatID, Name: "Cat", Type: CharacterPet, Leader: PlayerID}
-	w.Positions[CatID] = &Position{
+	w.characters[CatID] = &Character{ID: CatID, Name: "Cat", Type: CharacterPet, Leader: PlayerID}
+	w.positions[CatID] = &Position{
 		X: float64(WorldWidth/2 - TileSize/2 - TileSize),
 		Y: float64(WorldHeight/2 - TileSize/2),
 	}
@@ -34,12 +34,12 @@ func NewWorld() *World {
 }
 
 func (w *World) MoveCharacter(id CharacterID, dir Direction) {
-	pos, ok := w.Positions[id]
+	pos, ok := w.positions[id]
 	if !ok {
 		return
 	}
 
-	char, ok := w.Characters[id]
+	char, ok := w.characters[id]
 	if ok {
 		char.Facing = dir
 		char.Moving = true
@@ -52,13 +52,13 @@ func (w *World) MoveCharacter(id CharacterID, dir Direction) {
 }
 
 func (w *World) UpdateFollowers() {
-	for _, char := range w.Characters {
+	for _, char := range w.characters {
 		if char.Leader == "" {
 			continue
 		}
 
-		leaderPos := w.Positions[char.Leader]
-		followerPos := w.Positions[char.ID]
+		leaderPos := w.positions[char.Leader]
+		followerPos := w.positions[char.ID]
 
 		if leaderPos == nil || followerPos == nil {
 			continue
@@ -96,6 +96,16 @@ func (w *World) UpdateFollowers() {
 		}
 	}
 }
+
+func (w *World) Character(id CharacterID) *Character { return w.characters[id] }
+func (w *World) Position(id CharacterID) *Position   { return w.positions[id] }
+
+func (w *World) EachCharacter(fn func(CharacterID, *Character, *Position)) {
+	for id, char := range w.characters {
+		fn(id, char, w.positions[id])
+	}
+}
+
 func abs(v float64) float64 {
 	if v < 0 {
 		return -v

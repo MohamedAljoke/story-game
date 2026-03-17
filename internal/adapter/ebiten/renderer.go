@@ -37,21 +37,18 @@ func (r *EbitenRenderer) Draw(screen *eb.Image, world *domain.World) {
 	}
 
 	// Characters
-	for id, pos := range world.Positions {
-		char := world.Characters[id]
-
+	world.EachCharacter(func(id domain.CharacterID, char *domain.Character, pos *domain.Position) {
 		switch char.Type {
 
 		case domain.CharacterPlayer:
 			r.player.Draw(screen, pos, char.Facing)
 
 		case domain.CharacterPet:
-			player := world.Characters[domain.PlayerID]
-
-			r.cat.Draw(screen, pos, player.Facing)
+			leader := world.Character(char.Leader)
+			r.cat.Draw(screen, pos, leader.Facing)
 
 		}
-	}
+	})
 
 	// HUD
 	ebitenutil.DebugPrint(screen, "WASD / Arrow keys to move | ESC to quit")
