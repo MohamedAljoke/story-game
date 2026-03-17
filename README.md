@@ -86,6 +86,11 @@ Controls: `WASD` or arrow keys to move, `ESC` to quit.
 
 ---
 
+## Docs
+
+- [Architecture](docs/architecture.md) — detailed breakdown of every layer, file, and design decision
+- [Roadmap](docs/roadmap.md) — phased plan for tile maps, camera, collision, interaction, dialogue, and game state
+
 ## Project Status
 
 Early stage — core movement, world bounds, and rendering pipeline are in place. Dream world content, puzzles, and NPC interactions are next.

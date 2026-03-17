@@ -10,12 +10,14 @@ const (
 type World struct {
 	characters map[CharacterID]*Character
 	positions  map[CharacterID]*Position
+	TileMap    *TileMap
 }
 
-func NewWorld() *World {
+func NewWorld(tm *TileMap) *World {
 	w := &World{
 		characters: make(map[CharacterID]*Character),
 		positions:  make(map[CharacterID]*Position),
+		TileMap:    tm,
 	}
 
 	w.characters[PlayerID] = &Character{ID: PlayerID, Name: "Player", Type: CharacterPlayer, Facing: DirDown}
@@ -48,7 +50,14 @@ func (w *World) MoveCharacter(id CharacterID, dir Direction) {
 	dx, dy := dir.Delta()
 	pos.X += dx * MoveSpeed
 	pos.Y += dy * MoveSpeed
-	pos.Clamp(0, 0, WorldWidth-TileSize, WorldHeight-TileSize)
+
+	maxX := float64(WorldWidth - TileSize)
+	maxY := float64(WorldHeight - TileSize)
+	if w.TileMap != nil {
+		maxX = float64(w.TileMap.PixelWidth() - TileSize)
+		maxY = float64(w.TileMap.PixelHeight() - TileSize)
+	}
+	pos.Clamp(0, 0, maxX, maxY)
 }
 
 func (w *World) UpdateFollowers() {

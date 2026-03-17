@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	world := domain.NewWorld()
+	world := domain.NewWorld(nil)
 
 	loop := &application.GameLoop{
 		MoveChar: &application.MoveCharacter{World: world},

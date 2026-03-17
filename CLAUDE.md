@@ -8,6 +8,8 @@
 
 The player navigates distinct dream worlds, each belonging to a different dreamer. Worlds shift in atmosphere — a horror corridor, a childhood memory, a fantasy realm — and the player must explore, interact with dream fragments, and resolve the nightmare at the core.
 
+WHEN WE MAKE AN ARCHITECTURE CHANGE UPDATE /docs/architecture.md
+
 ## Quick Start
 
 ```sh
@@ -78,7 +80,7 @@ Domain must never import engine packages. Engine adapters depend inward on domai
 Defined in `internal/domain/world.go`:
 
 | Constant    | Value |
-|-------------|-------|
+| ----------- | ----- |
 | WorldWidth  | 800   |
 | WorldHeight | 600   |
 | TileSize    | 32    |
@@ -88,7 +90,7 @@ Defined in `internal/domain/world.go`:
 
 1. Adapter's `InputReader.ReadCommands()` translates input into `Command` values
 2. `GameLoop.ProcessCommands()` routes commands to use cases (shared across all adapters)
-3. `MoveCharacter` calls `World.MoveCharacter()` which applies direction delta * speed, then clamps to bounds
+3. `MoveCharacter` calls `World.MoveCharacter()` which applies direction delta \* speed, then clamps to bounds
 4. Adapter's `Renderer.Draw()` reads world state and renders output
 
 ## Adding a New Feature
