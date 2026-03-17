@@ -10,16 +10,16 @@ import (
 )
 
 type EbitenRenderer struct {
-	player  *sprites.PlayerSprite
-	cat     *sprites.CatSprite
-	tileset *Tileset
+	player *sprites.PlayerSprite
+	cat    *sprites.CatSprite
+	tiles  *TileRenderer
 }
 
-func NewRenderer(tileset *Tileset) *EbitenRenderer {
+func NewRenderer(tiles *TileRenderer) *EbitenRenderer {
 	return &EbitenRenderer{
-		player:  sprites.NewPlayerSprite(),
-		cat:     sprites.NewCatSprite(),
-		tileset: tileset,
+		player: sprites.NewPlayerSprite(),
+		cat:    sprites.NewCatSprite(),
+		tiles:  tiles,
 	}
 }
 
@@ -28,8 +28,8 @@ func (r *EbitenRenderer) Draw(screen *eb.Image, world *domain.World) {
 
 	cam := world.Camera
 
-	if r.tileset != nil && world.TileMap != nil {
-		r.tileset.DrawMap(screen, world.TileMap, cam)
+	if r.tiles != nil && world.TileMap != nil {
+		r.tiles.DrawMap(screen, world.TileMap, cam)
 	}
 
 	world.EachCharacter(func(id domain.CharacterID, char *domain.Character, pos *domain.Position) {

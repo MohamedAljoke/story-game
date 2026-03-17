@@ -14,11 +14,11 @@ type Game struct {
 	Renderer *EbitenRenderer
 }
 
-func NewEngine(world *domain.World, loop *application.GameLoop, tileset *Tileset) *Game {
+func NewEngine(world *domain.World, loop *application.GameLoop, tiles *TileRenderer) *Game {
 	return &Game{
 		World:    world,
 		Input:    &EbitenInput{},
-		Renderer: NewRenderer(tileset),
+		Renderer: NewRenderer(tiles),
 		Loop:     loop,
 	}
 }

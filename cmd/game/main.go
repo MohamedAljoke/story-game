@@ -10,12 +10,12 @@ import (
 )
 
 func main() {
-	tm, err := loader.LoadTiledMap("assets/maps/spawn.json", 2)
+	tm, tilesets, err := loader.LoadTiledMap("assets/maps/spawn.json", 2)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tileset, err := ebitenpkg.NewTileset("assets/maps/images/TilesetFloor.png", 16, 16, 2.0)
+	tiles, err := ebitenpkg.NewTileRenderer(tilesets, 2.0)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,7 +27,7 @@ func main() {
 		World:    world,
 	}
 
-	game := ebitenpkg.NewEngine(world, loop, tileset)
+	game := ebitenpkg.NewEngine(world, loop, tiles)
 
 	if err := game.Run(); err != nil {
 		log.Fatal(err)
