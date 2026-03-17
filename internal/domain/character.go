@@ -21,4 +21,5 @@ type Character struct {
 	Type   CharacterType
 	Facing Direction
 	Moving bool
+	Leader CharacterID
 }

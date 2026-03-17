@@ -24,7 +24,7 @@ func NewWorld() *World {
 		Y: float64(WorldHeight/2 - TileSize/2),
 	}
 
-	w.Characters[CatID] = &Character{ID: CatID, Name: "Cat", Type: CharacterPet}
+	w.Characters[CatID] = &Character{ID: CatID, Name: "Cat", Type: CharacterPet, Leader: PlayerID}
 	w.Positions[CatID] = &Position{
 		X: float64(WorldWidth/2 - TileSize/2 - TileSize),
 		Y: float64(WorldHeight/2 - TileSize/2),
@@ -52,49 +52,47 @@ func (w *World) MoveCharacter(id CharacterID, dir Direction) {
 }
 
 func (w *World) UpdateFollowers() {
-
-	playerPos := w.Positions[PlayerID]
-	catPos := w.Positions[CatID]
-
-	if playerPos == nil || catPos == nil {
-		return
-	}
-
-	cat := w.Characters[CatID]
-
-	dx := playerPos.X - catPos.X
-	dy := playerPos.Y - catPos.Y
-
-	if abs(dx) < TileSize && abs(dy) < TileSize {
-		cat.Moving = false
-		return
-	}
-
-	cat.Moving = true
-
-	// try to align with player plane first
-	if abs(dx) > 2 {
-
-		if dx > 0 {
-			catPos.X += MoveSpeed
-			cat.Facing = DirRight
-		} else {
-			catPos.X -= MoveSpeed
-			cat.Facing = DirLeft
+	for _, char := range w.Characters {
+		if char.Leader == "" {
+			continue
 		}
 
-		return
-	}
+		leaderPos := w.Positions[char.Leader]
+		followerPos := w.Positions[char.ID]
 
-	// once aligned horizontally, move vertically
-	if abs(dy) > 2 {
+		if leaderPos == nil || followerPos == nil {
+			continue
+		}
 
-		if dy > 0 {
-			catPos.Y += MoveSpeed
-			cat.Facing = DirDown
-		} else {
-			catPos.Y -= MoveSpeed
-			cat.Facing = DirUp
+		dx := leaderPos.X - followerPos.X
+		dy := leaderPos.Y - followerPos.Y
+
+		if abs(dx) < TileSize && abs(dy) < TileSize {
+			char.Moving = false
+			continue
+		}
+
+		char.Moving = true
+
+		if abs(dx) > 2 {
+			if dx > 0 {
+				followerPos.X += MoveSpeed
+				char.Facing = DirRight
+			} else {
+				followerPos.X -= MoveSpeed
+				char.Facing = DirLeft
+			}
+			continue
+		}
+
+		if abs(dy) > 2 {
+			if dy > 0 {
+				followerPos.Y += MoveSpeed
+				char.Facing = DirDown
+			} else {
+				followerPos.Y -= MoveSpeed
+				char.Facing = DirUp
+			}
 		}
 	}
 }
