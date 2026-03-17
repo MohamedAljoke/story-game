@@ -8,24 +8,24 @@ const (
 )
 
 type World struct {
-	Characters map[string]*Character
-	Positions  map[string]*Position
+	Characters map[CharacterID]*Character
+	Positions  map[CharacterID]*Position
 }
 
 func NewWorld() *World {
 	w := &World{
-		Characters: make(map[string]*Character),
-		Positions:  make(map[string]*Position),
+		Characters: make(map[CharacterID]*Character),
+		Positions:  make(map[CharacterID]*Position),
 	}
 
-	w.Characters["player"] = &Character{ID: "player", Name: "Player", Type: CharacterPlayer, Facing: DirDown}
-	w.Positions["player"] = &Position{
+	w.Characters[PlayerID] = &Character{ID: PlayerID, Name: "Player", Type: CharacterPlayer, Facing: DirDown}
+	w.Positions[PlayerID] = &Position{
 		X: float64(WorldWidth/2 - TileSize/2),
 		Y: float64(WorldHeight/2 - TileSize/2),
 	}
 
-	w.Characters["cat"] = &Character{ID: "cat", Name: "Cat", Type: CharacterPet}
-	w.Positions["cat"] = &Position{
+	w.Characters[CatID] = &Character{ID: CatID, Name: "Cat", Type: CharacterPet}
+	w.Positions[CatID] = &Position{
 		X: float64(WorldWidth/2 - TileSize/2 - TileSize),
 		Y: float64(WorldHeight/2 - TileSize/2),
 	}
@@ -33,7 +33,7 @@ func NewWorld() *World {
 	return w
 }
 
-func (w *World) MoveCharacter(id string, dir Direction) {
+func (w *World) MoveCharacter(id CharacterID, dir Direction) {
 	pos, ok := w.Positions[id]
 	if !ok {
 		return
@@ -53,14 +53,14 @@ func (w *World) MoveCharacter(id string, dir Direction) {
 
 func (w *World) UpdateFollowers() {
 
-	playerPos := w.Positions["player"]
-	catPos := w.Positions["cat"]
+	playerPos := w.Positions[PlayerID]
+	catPos := w.Positions[CatID]
 
 	if playerPos == nil || catPos == nil {
 		return
 	}
 
-	cat := w.Characters["cat"]
+	cat := w.Characters[CatID]
 
 	dx := playerPos.X - catPos.X
 	dy := playerPos.Y - catPos.Y

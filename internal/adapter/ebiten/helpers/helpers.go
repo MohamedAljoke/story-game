@@ -14,11 +14,11 @@ func HexColor(v uint32) color.RGBA {
 
 func LoadSprite(path string) (*eb.Image, error) {
 	file, err := os.Open(path)
-	defer file.Close()
-
 	if err != nil {
 		return nil, err
 	}
+
+	defer file.Close()
 
 	img, _, err := image.Decode(file)
 	if err != nil {

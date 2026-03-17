@@ -16,13 +16,13 @@ func (gl *GameLoop) ProcessCommands(cmds []engine.Command) bool {
 		case engine.CmdQuit:
 			return true
 		case engine.CmdMoveUp:
-			gl.MoveChar.Execute("player", domain.DirUp)
+			gl.MoveChar.Execute(domain.PlayerID, domain.DirUp)
 		case engine.CmdMoveDown:
-			gl.MoveChar.Execute("player", domain.DirDown)
+			gl.MoveChar.Execute(domain.PlayerID, domain.DirDown)
 		case engine.CmdMoveLeft:
-			gl.MoveChar.Execute("player", domain.DirLeft)
+			gl.MoveChar.Execute(domain.PlayerID, domain.DirLeft)
 		case engine.CmdMoveRight:
-			gl.MoveChar.Execute("player", domain.DirRight)
+			gl.MoveChar.Execute(domain.PlayerID, domain.DirRight)
 		}
 	}
 

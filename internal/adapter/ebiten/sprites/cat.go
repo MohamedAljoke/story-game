@@ -11,6 +11,7 @@ type CatSprite struct {
 	frames      [][]*eb.Image
 	animFrame   int
 	animCounter int
+	currentRow  int
 }
 
 func NewCatSprite() *CatSprite {
@@ -34,14 +35,21 @@ func NewCatSprite() *CatSprite {
 
 func (c *CatSprite) Draw(screen *eb.Image, pos *domain.Position, dir domain.Direction) {
 
+	row := c.getRow(dir)
+
+	if row != c.currentRow {
+		c.animFrame = 0
+		c.animCounter = 0
+		c.currentRow = row
+	}
+
 	c.animCounter++
 
 	if c.animCounter >= 50 {
-		c.animFrame = (c.animFrame + 1) % len(c.frames[0])
+		c.animFrame = (c.animFrame + 1) % len(c.frames[row])
 		c.animCounter = 0
 	}
 
-	row := c.getRow(dir)
 	frame := c.frames[row][c.animFrame]
 
 	w, h := frame.Bounds().Dx(), frame.Bounds().Dy()

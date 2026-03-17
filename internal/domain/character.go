@@ -1,5 +1,12 @@
 package domain
 
+type CharacterID string
+
+const (
+	PlayerID CharacterID = "player"
+	CatID    CharacterID = "cat"
+)
+
 type CharacterType string
 
 const (
@@ -9,7 +16,7 @@ const (
 )
 
 type Character struct {
-	ID     string
+	ID     CharacterID
 	Name   string
 	Type   CharacterType
 	Facing Direction

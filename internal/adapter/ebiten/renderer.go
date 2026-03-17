@@ -46,7 +46,7 @@ func (r *EbitenRenderer) Draw(screen *eb.Image, world *domain.World) {
 			r.player.Draw(screen, pos, char.Facing)
 
 		case domain.CharacterPet:
-			player := world.Characters["player"]
+			player := world.Characters[domain.PlayerID]
 
 			r.cat.Draw(screen, pos, player.Facing)
 
